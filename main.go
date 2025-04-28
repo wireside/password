@@ -3,21 +3,17 @@ package main
 import "fmt"
 
 func main() {
-	a := 5
-	var pointerA *int = &a // "*" before type abbreviation means pointer to the variable with that type
-	// pointerA := &a
-	fmt.Println(pointerA)  // prints the address in memory for "a" variable
-	fmt.Println(*pointerA) // * means dereference for pointer,
-	// in other words it's way to get the variable and its value from pointer
-	
-	fmt.Println("Value before:", a)
-	
-	double(&a)
-	
-	fmt.Println("Value after:", a)
-	
-	// with a pointer you can pass the variable as reference, not as value
-	// reference types like slice, map, function, chanel passes as reference by default
+	a := [4]int{1, 2, 3, 4}
+	reverse(&a)
+	fmt.Println(a)
+}
+
+func reverse(arr *[4]int) {
+	// without dereference we get current value of array on every iteration
+	// because arr is pointer(reference), but *arr is a value that range uses once
+	for index, value := range *arr {
+		arr[len(arr) - 1 - index] = value
+	}
 }
 
 func double(num *int) {
