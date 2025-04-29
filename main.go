@@ -9,6 +9,11 @@ type account struct {
 }
 
 func main() {
+	str := []rune("Привет :)") // similar to []int32(""). in this case can be replaced by := "..."
+	for _, ch := range string(str) {
+		fmt.Println(ch, string(ch)) // ch is rune and can be converted to the string
+	}
+	
 	login := promptData("Введите логин: ")
 	password := promptData("Введите пароль: ")
 	url := promptData("Введите url: ")
