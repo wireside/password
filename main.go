@@ -11,11 +11,15 @@ type account struct {
 	url      string
 }
 
+func (acc account) outputPassword() {
+	fmt.Println(acc.login, acc.password, acc.url)
+}
+
 var availableLetterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-*@!_.")
 
 func main() {
 	login := promptData("Введите логин: ")
-	password := generatePassword(8)
+	password := generatePassword(12)
 	url := promptData("Введите url: ")
 
 	myAccount := account{
@@ -24,12 +28,7 @@ func main() {
 		url:      url,
 	}
 
-	outputPassword(&myAccount)
-}
-
-func outputPassword(acc *account) {
-	fmt.Println(acc.login, acc.password, acc.url) // (*acc).login is similar as acc.login
-	// fmt.Println((*acc).login, (*acc).password, (*acc).url) without shorthand
+	myAccount.outputPassword()
 }
 
 func promptData(prompt string) string {
