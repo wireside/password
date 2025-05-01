@@ -11,23 +11,32 @@ type account struct {
 	url      string
 }
 
-func (acc account) outputPassword() {
+func (acc *account) outputPassword() { // (acc account) is a copy of struct instance
 	fmt.Println(acc.login, acc.password, acc.url)
+}
+
+func (acc *account) generatePassword(n int) { // acc *account is a pointer to instance
+	res := make([]rune, n)
+
+	for i := range res {
+		res[i] = availableLetterRunes[rand.IntN(len(availableLetterRunes)-1)]
+	}
+
+	acc.password = string(res)
 }
 
 var availableLetterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-*@!_.")
 
 func main() {
 	login := promptData("Введите логин: ")
-	password := generatePassword(12)
 	url := promptData("Введите url: ")
 
 	myAccount := account{
-		login:    login,
-		password: password,
-		url:      url,
+		login: login,
+		url:   url,
 	}
 
+	myAccount.generatePassword(12)
 	myAccount.outputPassword()
 }
 
@@ -39,16 +48,4 @@ func promptData(prompt string) string {
 		return ""
 	}
 	return res
-}
-
-func generatePassword(n int) string {
-	res := make([]rune, n)
-
-	for i := range res {
-		index := rand.IntN(len(availableLetterRunes) - 1)
-		letter := availableLetterRunes[index]
-		res[i] = letter
-	}
-
-	return string(res)
 }
