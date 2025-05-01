@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"math/rand/v2"
+)
 
 type account struct {
 	login    string
@@ -8,27 +11,24 @@ type account struct {
 	url      string
 }
 
+var availableLetterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-*@!_.")
+
 func main() {
-	str := []rune("Привет :)") // similar to []int32(""). in this case can be replaced by := "..."
-	for _, ch := range string(str) {
-		fmt.Println(ch, string(ch)) // ch is rune and can be converted to the string
-	}
-	
 	login := promptData("Введите логин: ")
-	password := promptData("Введите пароль: ")
+	password := generatePassword(8)
 	url := promptData("Введите url: ")
-	
+
 	myAccount := account{
-		login,    // ordering is important
-		password, // passing the parameters in same order as in struct
-		url,
+		login:    login,
+		password: password,
+		url:      url,
 	}
-	
+
 	outputPassword(&myAccount)
 }
 
 func outputPassword(acc *account) {
-	fmt.Println(acc.login, acc.password, acc.url)  // (*acc).login is similar as acc.login
+	fmt.Println(acc.login, acc.password, acc.url) // (*acc).login is similar as acc.login
 	// fmt.Println((*acc).login, (*acc).password, (*acc).url) without shorthand
 }
 
@@ -40,4 +40,16 @@ func promptData(prompt string) string {
 		return ""
 	}
 	return res
+}
+
+func generatePassword(n int) string {
+	res := make([]rune, n)
+
+	for i := range res {
+		index := rand.IntN(len(availableLetterRunes) - 1)
+		letter := availableLetterRunes[index]
+		res[i] = letter
+	}
+
+	return string(res)
 }
