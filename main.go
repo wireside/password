@@ -1,9 +1,15 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"math/rand/v2"
+	"net/url"
 )
+
+var availableLetterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-*@!_.")
+
+var InvalidUrlError = errors.New("URL is invalid, please enter the correct URL")
 
 type account struct {
 	login    string
@@ -21,27 +27,34 @@ func (acc *account) generatePassword(n int) { // acc *account is a pointer to in
 	for i := range res {
 		res[i] = availableLetterRunes[rand.IntN(len(availableLetterRunes)-1)]
 	}
-	
+
 	acc.password = string(res)
 }
 
-func newAccount(login, url string) *account {
+func newAccount(login, urlString string) (*account, error) {
+	_, err := url.ParseRequestURI(urlString)
+	if err != nil {
+		return nil, InvalidUrlError
+	}
+
 	acc := account{
 		login: login,
-		url: url,
+		url:   urlString,
 	}
 	acc.generatePassword(12)
-	
-	return &acc
-}
 
-var availableLetterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-*@!_.")
+	return &acc, nil
+}
 
 func main() {
 	login := promptData("Введите логин: ")
-	url := promptData("Введите url: ")
+	urlString := promptData("Введите urlString: ")
 
-	myAccount := newAccount(login, url)
+	myAccount, err := newAccount(login, urlString)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	myAccount.outputPassword()
 }
 
