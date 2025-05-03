@@ -9,7 +9,10 @@ import (
 
 var availableLetterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-*@!_.")
 
-var InvalidUrlError = errors.New("URL is invalid, please enter the correct URL")
+var (
+	InvalidUrlError = errors.New("url is invalid")
+	InvalidLoginError = errors.New("login is empty")
+)
 
 type account struct {
 	login    string
@@ -31,26 +34,35 @@ func (acc *account) generatePassword(n int) { // acc *account is a pointer to in
 	acc.password = string(res)
 }
 
-func newAccount(login, urlString string) (*account, error) {
+func newAccount(login, password, urlString string) (*account, error) {
+	if login == "" {
+		return nil, InvalidLoginError
+	}
+	
 	_, err := url.ParseRequestURI(urlString)
 	if err != nil {
 		return nil, InvalidUrlError
 	}
 
-	acc := account{
+	newAcc := account{
 		login: login,
+		password: password,
 		url:   urlString,
 	}
-	acc.generatePassword(12)
+	
+	if password == "" {
+		newAcc.generatePassword(12)
+	}
 
-	return &acc, nil
+	return &newAcc, nil
 }
 
 func main() {
 	login := promptData("Введите логин: ")
-	urlString := promptData("Введите urlString: ")
+	password := promptData("Введите пароль: ")
+	urlString := promptData("Введите url: ")
 
-	myAccount, err := newAccount(login, urlString)
+	myAccount, err := newAccount(login, password, urlString)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -61,7 +73,7 @@ func main() {
 func promptData(prompt string) string {
 	fmt.Print(prompt)
 	var res string
-	_, err := fmt.Scan(&res)
+	_, err := fmt.Scanln(&res)
 	if err != nil {
 		return ""
 	}
