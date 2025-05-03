@@ -21,8 +21,12 @@ func (acc *account) generatePassword(n int) { // acc *account is a pointer to in
 	for i := range res {
 		res[i] = availableLetterRunes[rand.IntN(len(availableLetterRunes)-1)]
 	}
-
+	
 	acc.password = string(res)
+}
+
+func newAccount() {
+
 }
 
 var availableLetterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-*@!_.")
