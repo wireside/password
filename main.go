@@ -25,8 +25,14 @@ func (acc *account) generatePassword(n int) { // acc *account is a pointer to in
 	acc.password = string(res)
 }
 
-func newAccount() {
-
+func newAccount(login, url string) *account {
+	acc := account{
+		login: login,
+		url: url,
+	}
+	acc.generatePassword(12)
+	
+	return &acc
 }
 
 var availableLetterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-*@!_.")
@@ -35,12 +41,7 @@ func main() {
 	login := promptData("Введите логин: ")
 	url := promptData("Введите url: ")
 
-	myAccount := account{
-		login: login,
-		url:   url,
-	}
-
-	myAccount.generatePassword(12)
+	myAccount := newAccount(login, url)
 	myAccount.outputPassword()
 }
 
