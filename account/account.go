@@ -2,10 +2,11 @@ package account
 
 import (
 	"errors"
-	"github.com/fatih/color"
 	"math/rand/v2"
 	"net/url"
 	"time"
+
+	"github.com/fatih/color"
 )
 
 var availableLetterRunes = []rune(
