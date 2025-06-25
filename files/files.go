@@ -6,6 +6,13 @@ import (
 )
 
 func ReadFile() {
+	data, err := os.ReadFile("file.txt")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	
+	fmt.Println(string(data))
 
 }
 
