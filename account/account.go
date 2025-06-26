@@ -20,7 +20,7 @@ var (
 )
 
 type Account struct {
-	login    string
+	login    string `json:"login" xml:"test"`
 	password string
 	url      string
 }

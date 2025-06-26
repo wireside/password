@@ -2,7 +2,8 @@ package main
 
 import (
 	"fmt"
-
+	"reflect"
+	
 	"demo/password/account"
 	"demo/password/files"
 )
@@ -18,6 +19,8 @@ func main() {
 		fmt.Println(err)
 		return
 	}
+	field, _ := reflect.TypeOf(myAccount).Elem().FieldByName("login")
+	fmt.Println(field.Tag)
 	myAccount.OutputPassword()
 	fmt.Println(myAccount)
 }
