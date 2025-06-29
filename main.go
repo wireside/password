@@ -2,27 +2,33 @@ package main
 
 import (
 	"fmt"
-	"reflect"
-	
+
 	"demo/password/account"
 	"demo/password/files"
 )
 
 func main() {
-	files.WriteFile("Привет! Я файл", "file.txt")
+	createAccount()
+}
+
+func createAccount() {
 	login := promptData("Введите логин: ")
 	password := promptData("Введите пароль: ")
 	urlString := promptData("Введите url: ")
 
-	myAccount, err := account.NewAccountWithTimeStamp(login, password, urlString)
+	myAccount, err := account.NewAccount(login, password, urlString)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	field, _ := reflect.TypeOf(myAccount).Elem().FieldByName("login")
-	fmt.Println(field.Tag)
-	myAccount.OutputPassword()
-	fmt.Println(myAccount)
+
+	file, err := myAccount.ToBytes()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	files.WriteFile(file, "data.json")
 }
 
 func promptData(prompt string) string {

@@ -1,6 +1,7 @@
 package account
 
 import (
+	"encoding/json"
 	"errors"
 	"math/rand/v2"
 	"net/url"
@@ -17,22 +18,28 @@ var availableLetterRunes = []rune(
 var (
 	invalidUrlError   = errors.New("url is invalid")
 	invalidLoginError = errors.New("login is empty")
+	jsonError = errors.New("failed to convert data to JSON")
 )
 
 type Account struct {
-	login    string `json:"login" xml:"test"`
-	password string
-	url      string
-}
-
-type AccountWithTimeStamp struct {
-	createdAt time.Time
-	updatedAt time.Time
-	Account
+	Login     string    `json:"login"`
+	Password  string    `json:"password"`
+	Url       string    `json:"url"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 func (acc *Account) OutputPassword() {
-	color.Cyan(acc.password)
+	color.Cyan(acc.Password)
+}
+
+func (acc *Account) ToBytes() ([]byte, error) {
+	file, err := json.Marshal(acc)
+	if err != nil {
+		return nil, jsonError
+	}
+	
+	return file, nil
 }
 
 func (acc *Account) generatePassword(n int) {
@@ -42,11 +49,11 @@ func (acc *Account) generatePassword(n int) {
 		res[i] = availableLetterRunes[rand.IntN(len(availableLetterRunes)-1)]
 	}
 
-	acc.password = string(res)
+	acc.Password = string(res)
 }
 
-func NewAccountWithTimeStamp(login, password, urlString string) (
-	*AccountWithTimeStamp, error,
+func NewAccount(login, password, urlString string) (
+	*Account, error,
 ) {
 	if login == "" {
 		return nil, invalidLoginError
@@ -57,21 +64,16 @@ func NewAccountWithTimeStamp(login, password, urlString string) (
 		return nil, invalidUrlError
 	}
 
-	newAcc := AccountWithTimeStamp{
-		createdAt: time.Now(),
-		updatedAt: time.Now(),
-		Account: Account{
-			login:    login,
-			password: password,
-			url:      urlString,
-		},
+	newAcc := Account{
+		Login:    login,
+		Password: password,
+		Url:      urlString,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 	}
 
 	if password == "" {
-		// shorthand can be used only if embedded struct was declared by short way
-		newAcc.generatePassword(12) // is similar to
-		// newAcc.Account.generatePassword(12)
-		// newAcc.login = no_password_user
+		newAcc.generatePassword(12)
 	}
 
 	return &newAcc, nil
