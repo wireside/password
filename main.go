@@ -2,14 +2,16 @@ package main
 
 import (
 	"fmt"
-
+	
 	"demo/password/account"
 	"demo/password/files"
 )
 
+const storageFileName = "data.json"
+
 func main() {
 	fmt.Println("__Менеджер паролей__")
-	
+
 Menu:
 	for {
 		option := getMenu()
@@ -27,7 +29,7 @@ Menu:
 			fmt.Println("Введена неверная опция")
 		}
 	}
-	
+
 	fmt.Println("Успешный выход из приложения")
 }
 
@@ -39,7 +41,7 @@ func getMenu() int {
 			"3. Удалить аккаунт\n" +
 			"4. Выход",
 	)
-	
+
 	fmt.Print("Введите опцию: ")
 	var option int
 	_, err := fmt.Scanln(&option)
@@ -69,13 +71,20 @@ func createAccount() {
 		return
 	}
 
-	file, err := myAccount.ToBytes()
+	existingData := files.ReadFile(storageFileName)
+	vault, err := account.GetVault(existingData)
 	if err != nil {
-		fmt.Println(err)
+		vault = account.NewVault()
+	}
+	vault.AddAccount(myAccount)
+
+	file, e := vault.ToBytes()
+	if e != nil {
+		fmt.Println(e)
 		return
 	}
 
-	files.WriteFile(file, "data.json")
+	files.WriteFile(file, storageFileName)
 }
 
 func promptData(prompt string) string {
