@@ -8,7 +8,54 @@ import (
 )
 
 func main() {
-	createAccount()
+	fmt.Println("__Менеджер паролей__")
+	
+Menu:
+	for {
+		option := getMenu()
+
+		switch option {
+		case 1:
+			createAccount()
+		case 2:
+			findAccount()
+		case 3:
+			deleteAccount()
+		case 4:
+			break Menu
+		default:
+			fmt.Println("Введена неверная опция")
+		}
+	}
+	
+	fmt.Println("Успешный выход из приложения")
+}
+
+func getMenu() int {
+	fmt.Println(
+		"Меню:\n" +
+			"1. Создать аккаунт\n" +
+			"2. Найти аккаунт\n" +
+			"3. Удалить аккаунт\n" +
+			"4. Выход",
+	)
+	
+	fmt.Print("Введите опцию: ")
+	var option int
+	_, err := fmt.Scanln(&option)
+	if err != nil {
+		return -1
+	}
+
+	return option
+}
+
+func findAccount() {
+	fmt.Println("Account data...")
+}
+
+func deleteAccount() {
+	fmt.Println("Account deleted")
 }
 
 func createAccount() {
