@@ -26,6 +26,4 @@ func WriteFile (content []byte, name string) {
 		fmt.Println(err)
 		return
 	}
-	
-	fmt.Println("Запись успешна")
 }

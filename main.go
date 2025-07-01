@@ -4,10 +4,13 @@ import (
 	"fmt"
 	
 	"demo/password/account"
+	"github.com/fatih/color"
 )
 
 func main() {
 	fmt.Println("__Менеджер паролей__")
+	
+	vault := account.NewVault()
 
 Menu:
 	for {
@@ -15,11 +18,11 @@ Menu:
 
 		switch option {
 		case 1:
-			createAccount()
+			createAccount(vault)
 		case 2:
-			findAccount()
+			findAccounts(vault)
 		case 3:
-			deleteAccount()
+			deleteAccount(vault)
 		case 4:
 			break Menu
 		default:
@@ -49,46 +52,39 @@ func getMenu() int {
 	return option
 }
 
-func findAccount() {
-	login := promptData("Введите логин: ")
+func findAccounts(vault *account.Vault) {
 	url := promptData("Введите url: ")
-	
-	vault := account.NewVault()
 
-	acc := vault.FindAccount(login, url)
-	if acc == nil {
-		fmt.Println("Аккаунт не найден")
+	accounts := vault.FindAccountsByUrl(url)
+	if len(accounts) == 0 {
+		color.Red("Аккаунтов не найдено")
 		return
 	}
-
-	fmt.Printf(
-		`Аккаунт:
-логин: %s
-пароль: %s
-url: %s
-`,
-		acc.Login, acc.Password, acc.Url,
-	)
+	
+	color.Magenta("Результаты поиска:\n")
+	for i, acc := range accounts {
+		color.Cyan(`-- Аккаунт %d --`, i + 1)
+		acc.Output()
+	}
 }
 
-func deleteAccount() {
+func deleteAccount(vault *account.Vault) {
 	login := promptData("Введите логин: ")
 	url := promptData("Введите url: ")
 	
-	vault := account.NewVault()
-	
 	acc := vault.FindAccount(login, url)
 	if acc == nil {
-		fmt.Println("Аккаунт не найден")
+		color.Red("Аккаунт не найден")
+		color.Red("Не удалось удалить аккаунт")
 		return
 	}
 	
 	vault.DeleteAccount(login, url)
 	
-	fmt.Println("Аккаунт успешно удален")
+	color.Green("Аккаунт успешно удален")
 }
 
-func createAccount() {
+func createAccount(vault *account.Vault) {
 	login := promptData("Введите логин: ")
 	password := promptData("Введите пароль: ")
 	urlString := promptData("Введите url: ")
@@ -98,9 +94,10 @@ func createAccount() {
 		fmt.Println(err)
 		return
 	}
-
-	vault := account.NewVault()
+	
 	vault.AddAccount(myAccount)
+	
+	color.HiBlue("Аккаунт успешно добавлен")
 }
 
 func promptData(prompt string) string {
