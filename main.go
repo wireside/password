@@ -4,10 +4,7 @@ import (
 	"fmt"
 	
 	"demo/password/account"
-	"demo/password/files"
 )
-
-const storageFileName = "data.json"
 
 func main() {
 	fmt.Println("__Менеджер паролей__")
@@ -53,11 +50,42 @@ func getMenu() int {
 }
 
 func findAccount() {
-	fmt.Println("Account data...")
+	login := promptData("Введите логин: ")
+	url := promptData("Введите url: ")
+	
+	vault := account.NewVault()
+
+	acc := vault.FindAccount(login, url)
+	if acc == nil {
+		fmt.Println("Аккаунт не найден")
+		return
+	}
+
+	fmt.Printf(
+		`Аккаунт:
+логин: %s
+пароль: %s
+url: %s
+`,
+		acc.Login, acc.Password, acc.Url,
+	)
 }
 
 func deleteAccount() {
-	fmt.Println("Account deleted")
+	login := promptData("Введите логин: ")
+	url := promptData("Введите url: ")
+	
+	vault := account.NewVault()
+	
+	acc := vault.FindAccount(login, url)
+	if acc == nil {
+		fmt.Println("Аккаунт не найден")
+		return
+	}
+	
+	vault.DeleteAccount(login, url)
+	
+	fmt.Println("Аккаунт успешно удален")
 }
 
 func createAccount() {
@@ -71,20 +99,8 @@ func createAccount() {
 		return
 	}
 
-	existingData := files.ReadFile(storageFileName)
-	vault, err := account.GetVault(existingData)
-	if err != nil {
-		vault = account.NewVault()
-	}
+	vault := account.NewVault()
 	vault.AddAccount(myAccount)
-
-	file, e := vault.ToBytes()
-	if e != nil {
-		fmt.Println(e)
-		return
-	}
-
-	files.WriteFile(file, storageFileName)
 }
 
 func promptData(prompt string) string {
