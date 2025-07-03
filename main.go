@@ -4,13 +4,14 @@ import (
 	"fmt"
 	
 	"demo/password/account"
+	"demo/password/files"
 	"github.com/fatih/color"
 )
 
 func main() {
 	fmt.Println("__Менеджер паролей__")
 	
-	vault := account.NewVault()
+	vault := account.NewVault(files.NewJsonDb("data.json"))
 
 Menu:
 	for {
@@ -52,7 +53,7 @@ func getMenu() int {
 	return option
 }
 
-func findAccounts(vault *account.Vault) {
+func findAccounts(vault *account.VaultWithDb) {
 	url := promptData("Введите url: ")
 
 	accounts := vault.FindAccountsByUrl(url)
@@ -61,14 +62,15 @@ func findAccounts(vault *account.Vault) {
 		return
 	}
 	
-	color.Magenta("Результаты поиска:\n")
+	color.Magenta("Результаты поиска:\n\n")
 	for i, acc := range accounts {
 		color.Cyan(`-- Аккаунт %d --`, i + 1)
 		acc.Output()
+		fmt.Println()
 	}
 }
 
-func deleteAccount(vault *account.Vault) {
+func deleteAccount(vault *account.VaultWithDb) {
 	login := promptData("Введите логин: ")
 	url := promptData("Введите url: ")
 	
@@ -84,7 +86,7 @@ func deleteAccount(vault *account.Vault) {
 	color.Green("Аккаунт успешно удален")
 }
 
-func createAccount(vault *account.Vault) {
+func createAccount(vault *account.VaultWithDb) {
 	login := promptData("Введите логин: ")
 	password := promptData("Введите пароль: ")
 	urlString := promptData("Введите url: ")

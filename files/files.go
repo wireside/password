@@ -15,7 +15,7 @@ func NewJsonDb(filename string) *JsonDb {
 	}
 }
 
-func (db *JsonDb) Read(name string) ([]byte, error) {
+func (db *JsonDb) Read() ([]byte, error) {
 	data, err := os.ReadFile(db.filename)
 	if err != nil {
 		return nil, err
@@ -24,7 +24,7 @@ func (db *JsonDb) Read(name string) ([]byte, error) {
 	return data, nil
 }
 
-func (db *JsonDb) Write(content []byte, name string) {
+func (db *JsonDb) Write(content []byte) {
 	file, err := os.Create(db.filename)
 	if err != nil {
 		fmt.Println(err)

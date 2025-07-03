@@ -4,16 +4,47 @@ import (
 	"encoding/json"
 	"strings"
 	"time"
-
-	"demo/password/files"
+	
 	"github.com/fatih/color"
 )
 
-const StorageFileName = "data.json"
+type Db interface {
+	Read() ([]byte, error)
+	Write([]byte)
+}
 
 type Vault struct {
 	Accounts  []Account `json:"accounts"`
 	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+type VaultWithDb struct {
+	Vault
+	db Db
+}
+
+func NewVault(db Db) *VaultWithDb {
+	file, err := db.Read()
+	if err != nil {
+		return &VaultWithDb{
+			Vault: Vault{
+				Accounts:  []Account{},
+				UpdatedAt: time.Now(),
+			},
+			db: db,
+		}
+	}
+	
+	var vault Vault
+	err = json.Unmarshal(file, &vault)
+	if err != nil {
+		color.Red("Failed to read data.json")
+	}
+	
+	return &VaultWithDb{
+		Vault: vault,
+		db:    db,
+	}
 }
 
 func (vault *Vault) ToBytes() ([]byte, error) {
@@ -25,7 +56,7 @@ func (vault *Vault) ToBytes() ([]byte, error) {
 	return file, nil
 }
 
-func (vault *Vault) save() {
+func (vault *VaultWithDb) save() {
 	vault.UpdatedAt = time.Now()
 
 	data, err := vault.ToBytes()
@@ -33,33 +64,15 @@ func (vault *Vault) save() {
 		color.Red("Не удалось преобразовать в JSON")
 	}
 
-	files.WriteFile(data, StorageFileName)
+	vault.db.Write(data)
 }
 
-func NewVault() *Vault {
-	file, err := files.ReadFile(StorageFileName)
-	if err != nil {
-		return &Vault{
-			Accounts:  []Account{},
-			UpdatedAt: time.Now(),
-		}
-	}
-
-	var vault Vault
-	err = json.Unmarshal(file, &vault)
-	if err != nil {
-		color.Red("Failed to read data.json")
-	}
-
-	return &vault
-}
-
-func (vault *Vault) AddAccount(account *Account) {
+func (vault *VaultWithDb) AddAccount(account *Account) {
 	vault.Accounts = append(vault.Accounts, *account)
 	vault.save()
 }
 
-func (vault *Vault) FindAccountsByUrl(url string) []Account {
+func (vault *VaultWithDb) FindAccountsByUrl(url string) []Account {
 	var accounts []Account
 	for _, acc := range vault.Accounts {
 		if strings.Contains(acc.Url, url) {
@@ -70,7 +83,7 @@ func (vault *Vault) FindAccountsByUrl(url string) []Account {
 	return accounts
 }
 
-func (vault *Vault) FindAccount(login string, url string) *Account {
+func (vault *VaultWithDb) FindAccount(login string, url string) *Account {
 	for _, account := range vault.Accounts {
 		if account.Login == login && account.Url == url {
 			return &account
@@ -80,7 +93,7 @@ func (vault *Vault) FindAccount(login string, url string) *Account {
 	return nil
 }
 
-func (vault *Vault) DeleteAccount(login string, url string) {
+func (vault *VaultWithDb) DeleteAccount(login string, url string) {
 	accounts := make([]Account, 0, len(vault.Accounts))
 
 	for _, acc := range vault.Accounts {
