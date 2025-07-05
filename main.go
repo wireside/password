@@ -92,7 +92,7 @@ func createAccount(vault *account.VaultWithDb) {
 
 	myAccount, err := account.NewAccount(login, password, urlString)
 	if err != nil {
-		output.PrintError(err.Error())
+		output.PrintError(err)
 		return
 	}
 
