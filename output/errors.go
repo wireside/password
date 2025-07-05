@@ -5,14 +5,23 @@ import (
 )
 
 func PrintError(value any) {
-	switch t := value.(type) {
-	case error:
-		color.Red(t.Error())
-	case string:
-		color.Red(t)
-	case int:
-		color.Red("Код ошибки: %d", t)
-	default:
-		color.Red("Неизвестная ошибка")
+	errValue, ok := value.(error)
+	if ok {
+		color.Red(errValue.Error())
+		return
 	}
+	
+	strValue, ok := value.(string)
+	if ok {
+		color.Red(strValue)
+		return
+	}
+	
+	intValue, ok := value.(int)
+	if ok {
+		color.Red("Код ошибки: %d", intValue)
+		return
+	}
+	
+	color.Red("Неизвестная ошибка")
 }
