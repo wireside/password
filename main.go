@@ -2,15 +2,16 @@ package main
 
 import (
 	"fmt"
-	
+
 	"demo/password/account"
 	"demo/password/files"
+	"demo/password/output"
 	"github.com/fatih/color"
 )
 
 func main() {
 	fmt.Println("__Менеджер паролей__")
-	
+
 	vault := account.NewVault(files.NewJsonDb("data.json"))
 
 Menu:
@@ -27,11 +28,9 @@ Menu:
 		case 4:
 			break Menu
 		default:
-			fmt.Println("Введена неверная опция")
+			output.PrintError("Введена неизвестная опция")
 		}
 	}
-
-	fmt.Println("Успешный выход из приложения")
 }
 
 func getMenu() int {
@@ -58,13 +57,13 @@ func findAccounts(vault *account.VaultWithDb) {
 
 	accounts := vault.FindAccountsByUrl(url)
 	if len(accounts) == 0 {
-		color.Red("Аккаунтов не найдено")
+		output.PrintError("Аккаунтов не найдено")
 		return
 	}
-	
+
 	color.Magenta("Результаты поиска:\n\n")
 	for i, acc := range accounts {
-		color.Cyan(`-- Аккаунт %d --`, i + 1)
+		color.Cyan(`-- Аккаунт %d --`, i+1)
 		acc.Output()
 		fmt.Println()
 	}
@@ -73,16 +72,16 @@ func findAccounts(vault *account.VaultWithDb) {
 func deleteAccount(vault *account.VaultWithDb) {
 	login := promptData("Введите логин: ")
 	url := promptData("Введите url: ")
-	
+
 	acc := vault.FindAccount(login, url)
 	if acc == nil {
-		color.Red("Аккаунт не найден")
-		color.Red("Не удалось удалить аккаунт")
+		output.PrintError("Аккаунт не найден")
+		output.PrintError("Не удалось удалить аккаунт")
 		return
 	}
-	
+
 	vault.DeleteAccount(login, url)
-	
+
 	color.Green("Аккаунт успешно удален")
 }
 
@@ -93,12 +92,12 @@ func createAccount(vault *account.VaultWithDb) {
 
 	myAccount, err := account.NewAccount(login, password, urlString)
 	if err != nil {
-		fmt.Println(err)
+		output.PrintError(err.Error())
 		return
 	}
-	
+
 	vault.AddAccount(myAccount)
-	
+
 	color.HiBlue("Аккаунт успешно добавлен")
 }
 

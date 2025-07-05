@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 	
-	"github.com/fatih/color"
+	"demo/password/output"
 )
 
 type ByteReader interface {
@@ -46,7 +46,7 @@ func NewVault(db Db) *VaultWithDb {
 	var vault Vault
 	err = json.Unmarshal(file, &vault)
 	if err != nil {
-		color.Red("Failed to read data.json")
+		output.PrintError("Не удалось прочитать JSON")
 	}
 	
 	return &VaultWithDb{
@@ -69,7 +69,7 @@ func (vault *VaultWithDb) save() {
 
 	data, err := vault.ToBytes()
 	if err != nil {
-		color.Red("Не удалось преобразовать в JSON")
+		output.PrintError("Не удалось преобразовать в JSON")
 	}
 
 	vault.db.Write(data)
