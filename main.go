@@ -16,16 +16,23 @@ func main() {
 
 Menu:
 	for {
-		option := getMenu()
+		option := promptData[string]([]string{
+			"Меню:",
+			"1. Создать аккаунт",
+			"2. Найти аккаунт",
+			"3. Удалить аккаунт",
+			"4. Выход",
+			"Введите опцию",
+		})
 
 		switch option {
-		case 1:
+		case "1":
 			createAccount(vault)
-		case 2:
+		case "2":
 			findAccounts(vault)
-		case 3:
+		case "3":
 			deleteAccount(vault)
-		case 4:
+		case "4":
 			break Menu
 		default:
 			output.PrintError("Введена неизвестная опция")
@@ -33,27 +40,8 @@ Menu:
 	}
 }
 
-func getMenu() int {
-	fmt.Println(
-		"Меню:\n" +
-			"1. Создать аккаунт\n" +
-			"2. Найти аккаунт\n" +
-			"3. Удалить аккаунт\n" +
-			"4. Выход",
-	)
-
-	fmt.Print("Введите опцию: ")
-	var option int
-	_, err := fmt.Scanln(&option)
-	if err != nil {
-		return -1
-	}
-
-	return option
-}
-
 func findAccounts(vault *account.VaultWithDb) {
-	url := promptData("Введите url: ")
+	url := promptData([]string{"Введите url"})
 
 	accounts := vault.FindAccountsByUrl(url)
 	if len(accounts) == 0 {
@@ -70,8 +58,8 @@ func findAccounts(vault *account.VaultWithDb) {
 }
 
 func deleteAccount(vault *account.VaultWithDb) {
-	login := promptData("Введите логин: ")
-	url := promptData("Введите url: ")
+	login := promptData[string]([]string{"Введите логин"})
+	url := promptData[string]([]string{"Введите url"})
 
 	acc := vault.FindAccount(login, url)
 	if acc == nil {
@@ -86,9 +74,9 @@ func deleteAccount(vault *account.VaultWithDb) {
 }
 
 func createAccount(vault *account.VaultWithDb) {
-	login := promptData("Введите логин: ")
-	password := promptData("Введите пароль: ")
-	urlString := promptData("Введите url: ")
+	login := promptData[string]([]string{"Введите логин"})
+	password := promptData[string]([]string{"Введите пароль"})
+	urlString := promptData[string]([]string{"Введите url"})
 
 	myAccount, err := account.NewAccount(login, password, urlString)
 	if err != nil {
@@ -101,8 +89,15 @@ func createAccount(vault *account.VaultWithDb) {
 	color.HiBlue("Аккаунт успешно добавлен")
 }
 
-func promptData(prompt string) string {
-	fmt.Print(prompt)
+func promptData[T any](prompt []T) string {
+	for i, line := range prompt {
+		if i == len(prompt)-1 {
+			fmt.Printf("%v: ", line)
+		} else {
+			fmt.Println(line)
+		}
+	}
+
 	var res string
 	_, err := fmt.Scanln(&res)
 	if err != nil {
