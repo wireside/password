@@ -9,34 +9,39 @@ import (
 	"github.com/fatih/color"
 )
 
+var menu = map[string]func(*account.VaultWithDb){
+	"1": createAccount,
+	"2": findAccounts,
+	"3": deleteAccount,
+}
+
 func main() {
 	fmt.Println("__Менеджер паролей__")
 
 	vault := account.NewVault(files.NewJsonDb("data.json"))
 
-Menu:
 	for {
-		option := promptData[string]([]string{
-			"Меню:",
-			"1. Создать аккаунт",
-			"2. Найти аккаунт",
-			"3. Удалить аккаунт",
-			"4. Выход",
-			"Введите опцию",
-		})
+		option := promptData[string](
+			[]string{
+				"Меню:",
+				"1. Создать аккаунт",
+				"2. Найти аккаунт",
+				"3. Удалить аккаунт",
+				"4. Выход",
+				"Введите опцию",
+			},
+		)
 
-		switch option {
-		case "1":
-			createAccount(vault)
-		case "2":
-			findAccounts(vault)
-		case "3":
-			deleteAccount(vault)
-		case "4":
-			break Menu
-		default:
-			output.PrintError("Введена неизвестная опция")
+		if option == "4" {
+			break
 		}
+
+		if menu[option] == nil {
+			output.PrintError("Введена неизвестная опция")
+			continue
+		}
+
+		menu[option](vault)
 	}
 }
 
