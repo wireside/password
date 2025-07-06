@@ -4,6 +4,7 @@ import (
 	"os"
 	
 	"demo/password/output"
+	"github.com/fatih/color"
 )
 
 type JsonDb struct {
@@ -37,4 +38,5 @@ func (db *JsonDb) Write(content []byte) {
 		output.PrintError(err)
 		return
 	}
+	color.Green("Запись успешна")
 }
