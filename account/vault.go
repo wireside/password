@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"strings"
 	"time"
-	
+
 	"demo/password/output"
 )
 
@@ -42,13 +42,13 @@ func NewVault(db Db) *VaultWithDb {
 			db: db,
 		}
 	}
-	
+
 	var vault Vault
 	err = json.Unmarshal(file, &vault)
 	if err != nil {
 		output.PrintError("Не удалось прочитать JSON")
 	}
-	
+
 	return &VaultWithDb{
 		Vault: vault,
 		db:    db,
@@ -81,13 +81,32 @@ func (vault *VaultWithDb) AddAccount(account *Account) {
 }
 
 func (vault *VaultWithDb) FindAccountsByUrl(url string) []Account {
+	return vault.FindAccounts(
+		url, func(acc Account, str string) bool {
+			return strings.Contains(strings.ToLower(acc.Url), strings.ToLower(str))
+		},
+	)
+}
+
+func (vault *VaultWithDb) FindAccountsByLogin(login string) []Account {
+	return vault.FindAccounts(
+		login, func(acc Account, str string) bool {
+			return strings.Contains(strings.ToLower(acc.Login), strings.ToLower(str))
+		},
+	)
+}
+
+func (vault *VaultWithDb) FindAccounts(
+	param string,
+	checker func(Account, string) bool,
+) []Account {
 	var accounts []Account
 	for _, acc := range vault.Accounts {
-		if strings.Contains(acc.Url, url) {
+		isMatched := checker(acc, param)
+		if isMatched {
 			accounts = append(accounts, acc)
 		}
 	}
-
 	return accounts
 }
 

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	"demo/password/account"
 	"demo/password/files"
@@ -11,8 +12,9 @@ import (
 
 var menu = map[string]func(*account.VaultWithDb){
 	"1": createAccount,
-	"2": findAccounts,
-	"3": deleteAccount,
+	"2": findAccountsByUrl,
+	"3": findAccountsByLogin,
+	"4": deleteAccount,
 }
 
 func main() {
@@ -25,14 +27,15 @@ func main() {
 			[]string{
 				"Меню:",
 				"1. Создать аккаунт",
-				"2. Найти аккаунт",
-				"3. Удалить аккаунт",
-				"4. Выход",
+				"2. Найти аккаунт по URL",
+				"3. Найти аккаунт по логину",
+				"4. Удалить аккаунт",
+				"5. Выход",
 				"Введите опцию",
 			},
 		)
 
-		if option == "4" {
+		if option == "5" {
 			break
 		}
 
@@ -45,10 +48,29 @@ func main() {
 	}
 }
 
-func findAccounts(vault *account.VaultWithDb) {
-	url := promptData([]string{"Введите url"})
+func findAccountsByUrl(vault *account.VaultWithDb) {
+	url := promptData([]string{"Введите URL для поиска"})
 
-	accounts := vault.FindAccountsByUrl(url)
+	accounts := vault.FindAccounts(
+		url, func(acc account.Account, str string) bool {
+			return strings.Contains(strings.ToLower(acc.Url), strings.ToLower(str))
+		},
+	)
+
+	showFindResults(accounts)
+}
+
+func findAccountsByLogin(vault *account.VaultWithDb) {
+	login := promptData([]string{"Введите логин для поиска"})
+
+	accounts := vault.FindAccounts(login, func(acc account.Account, str string) bool {
+		return strings.Contains(strings.ToLower(acc.Login), strings.ToLower(str))
+	})
+
+	showFindResults(accounts)
+}
+
+func showFindResults(accounts []account.Account) {
 	if len(accounts) == 0 {
 		output.PrintError("Аккаунтов не найдено")
 		return
