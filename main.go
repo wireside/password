@@ -33,7 +33,7 @@ func main() {
 	vault := account.NewVault(files.NewJsonDb("data.json"))
 
 	for {
-		option := promptData[string](menuLabels...)
+		option := promptData(menuLabels...)
 
 		if option == "5" {
 			break
@@ -87,8 +87,8 @@ func showFindResults(accounts []account.Account) {
 }
 
 func deleteAccount(vault *account.VaultWithDb) {
-	login := promptData[string]("Введите логин")
-	url := promptData[string]("Введите url")
+	login := promptData("Введите логин")
+	url := promptData("Введите url")
 
 	acc := vault.FindAccount(login, url)
 	if acc == nil {
@@ -103,9 +103,9 @@ func deleteAccount(vault *account.VaultWithDb) {
 }
 
 func createAccount(vault *account.VaultWithDb) {
-	login := promptData[string]("Введите логин")
-	password := promptData[string]("Введите пароль")
-	urlString := promptData[string]("Введите url")
+	login := promptData("Введите логин")
+	password := promptData("Введите пароль")
+	urlString := promptData("Введите url")
 
 	myAccount, err := account.NewAccount(login, password, urlString)
 	if err != nil {
