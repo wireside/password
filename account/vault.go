@@ -7,6 +7,7 @@ import (
 	
 	"demo/password/encrypter"
 	"demo/password/output"
+	"github.com/fatih/color"
 )
 
 type ByteReader interface {
@@ -34,7 +35,7 @@ type VaultWithDb struct {
 }
 
 func NewVault(db Db, enc encrypter.Encrypter) *VaultWithDb {
-	file, err := db.Read()
+	encryptedFile, err := db.Read()
 	if err != nil {
 		return &VaultWithDb{
 			Vault: Vault{
@@ -47,7 +48,9 @@ func NewVault(db Db, enc encrypter.Encrypter) *VaultWithDb {
 	}
 
 	var vault Vault
-	err = json.Unmarshal(file, &vault)
+	data := enc.Decrypt(encryptedFile)
+	err = json.Unmarshal(data, &vault)
+	color.Cyan("Найдено аккаунтов: %d", len(vault.Accounts))
 	if err != nil {
 		output.PrintError("Не удалось прочитать JSON")
 	}
@@ -57,26 +60,6 @@ func NewVault(db Db, enc encrypter.Encrypter) *VaultWithDb {
 		db:    db,
 		enc: enc,
 	}
-}
-
-func (vault *Vault) ToBytes() ([]byte, error) {
-	file, err := json.Marshal(vault)
-	if err != nil {
-		return nil, jsonError
-	}
-
-	return file, nil
-}
-
-func (vault *VaultWithDb) save() {
-	vault.UpdatedAt = time.Now()
-
-	data, err := vault.ToBytes()
-	if err != nil {
-		output.PrintError("Не удалось преобразовать в JSON")
-	}
-
-	vault.db.Write(data)
 }
 
 func (vault *VaultWithDb) AddAccount(account *Account) {
@@ -137,4 +120,25 @@ func (vault *VaultWithDb) DeleteAccount(login string, url string) {
 
 	vault.Accounts = accounts
 	vault.save()
+}
+
+func (vault *Vault) ToBytes() ([]byte, error) {
+	file, err := json.Marshal(vault)
+	if err != nil {
+		return nil, jsonError
+	}
+	
+	return file, nil
+}
+
+func (vault *VaultWithDb) save() {
+	vault.UpdatedAt = time.Now()
+	
+	data, err := vault.ToBytes()
+	encryptedData := vault.enc.Encrypt(data)
+	if err != nil {
+		output.PrintError("Не удалось преобразовать в JSON")
+	}
+	
+	vault.db.Write(encryptedData)
 }

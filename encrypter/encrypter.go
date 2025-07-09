@@ -22,7 +22,7 @@ func NewEncrypter() *Encrypter {
 	}
 }
 
-func (enc *Encrypter) Encrypt(plaintStr []byte) []byte {
+func (enc *Encrypter) Encrypt(plaintText []byte) []byte {
 	block, err := aes.NewCipher([]byte(enc.Key))
 	if err != nil {
 		panic(err.Error())
@@ -40,10 +40,10 @@ func (enc *Encrypter) Encrypt(plaintStr []byte) []byte {
 		panic(err.Error())
 	}
 	
-	return aesGCM.Seal(nonce, nonce, plaintStr, nil)
+	return aesGCM.Seal(nonce, nonce, plaintText, nil)
 }
 
-func (enc *Encrypter) Decrypt(encryptedStr []byte) []byte {
+func (enc *Encrypter) Decrypt(encryptedText []byte) []byte {
 	block, err := aes.NewCipher([]byte(enc.Key))
 	if err != nil {
 		panic(err.Error())
@@ -55,7 +55,7 @@ func (enc *Encrypter) Decrypt(encryptedStr []byte) []byte {
 	}
 	
 	nonceSize := aesGCM.NonceSize()
-	nonce, cipherText := encryptedStr[:nonceSize], encryptedStr[nonceSize:]
+	nonce, cipherText := encryptedText[:nonceSize], encryptedText[nonceSize:]
 	plainText, err := aesGCM.Open(nil, nonce, cipherText, nil)
 	if err != nil {
 		panic(err.Error())

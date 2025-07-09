@@ -37,7 +37,7 @@ func main() {
 
 	fmt.Println("__Менеджер паролей__")
 
-	vault := account.NewVault(files.NewJsonDb("data.json"), *encrypter.NewEncrypter())
+	vault := account.NewVault(files.NewJsonDb("data.vault"), *encrypter.NewEncrypter())
 
 	for {
 		option := promptData(menuLabels...)

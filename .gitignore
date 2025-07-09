@@ -7,3 +7,4 @@ gen
 file.txt
 data.json
 /.env*
+/*.vault
