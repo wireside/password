@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"demo/password/account"
+	"demo/password/encrypter"
 	"demo/password/files"
 	"demo/password/output"
 	"github.com/fatih/color"
@@ -36,7 +37,7 @@ func main() {
 
 	fmt.Println("__Менеджер паролей__")
 
-	vault := account.NewVault(files.NewJsonDb("data.json"))
+	vault := account.NewVault(files.NewJsonDb("data.json"), *encrypter.NewEncrypter())
 
 	for {
 		option := promptData(menuLabels...)
